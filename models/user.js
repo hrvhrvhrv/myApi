@@ -28,14 +28,24 @@ UserSchema.pre('save',function (next) {
     if(!user.isModified('password')){
         return next();
     }
-    bcrypt.genSalt(SALT_FACTOR, function (err,salt) {
+    bycrypt.genSalt(SALT_FACTOR, function (err,salt) {
         if(err){
             return next(err);
         }
-        user.password = hash;
 
-    })
+    bycrypt.hash(user.password, salt, null, function (err, hash) {
+                if(err){
+                    return next(err);
+                }
+                user.password = hash;
+                next();
+    });
+
+
+    });
 });
+
+
 
 UserSchema.methods.comparePassword = function (passwordAttempt, cb) {
     bycrypt.compare(passwordAttempt, this.password, function (err, isMatch) {
