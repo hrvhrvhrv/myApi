@@ -66,7 +66,7 @@ router.post('/signin', function (req,res) {
                     debug(err);
                     res.status(401).send({
                         success: false,
-                        msg: 'this doesnt work '
+                        msg: 'this no  work'
                     })
                 }
             })
