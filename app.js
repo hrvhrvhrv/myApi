@@ -21,7 +21,7 @@ catch(e){
 var api = require('./routes/api');
 
 //Comment out the  routes we are not using
-var index = require('./routes/index');
+// var index = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
@@ -29,7 +29,9 @@ var app = express();
 // add Cors Support before any routing
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header('Access-Control-Expose-Headers', 'Authorization');//have to expose so that browser have
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
     next();
 });
 app.use(passport.initialize());
