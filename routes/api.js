@@ -17,7 +17,7 @@ var debug = require('debug')('myapi:server');
  *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  *  USER FUNCTIONS
  *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
- * **/
+ **/
 
 // - - - - - - - - - - - - - - - -
 //     CREATE NEW USER
@@ -66,6 +66,10 @@ router.put('/user:id', passport.authenticate('jwt', {session: false}), function 
         return res.status(403).send({success: false, msg: 'Unauthorized.'});
     }
 });
+
+
+
+
 // - - - - - - - - - - - - - - - -
 //     USER LOGIN
 // - - - - - - - - - - - - - - - -
@@ -107,15 +111,75 @@ router.post('/signin', function (req,res) {
     })
 });
 
+// - - - - - - - - - - - - - - - -
+//     GET ALL USERS
+// - - - - - - - - - - - - - - - -
+router.get('/user', passport.authenticate('jwt', { session: false}), function(req, res) {
+    var token = getToken(req.headers);
+    if (token) {
+        user.find(function (err,comment) {
+            if (err) return next(err);
+            res.json(comment);
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'Unauthorized. To get Users'});
+    }
+});
 
+// - - - - - - - - - - - - - - - -
+//     GET SINGLE USER BY ID - no security on this required
+// - - - - - - - - - - - - - - - -
 
+router.get('/user:id', function(req, res, next) {
 
+    user.findById(req.params.id, function (err, post) {
+        if (err) return next(err);
+        res.json(post);
+    });
 
+});
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//     FILMS REST API
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// POST FILm
+// - - - - - - - - - - - - - - - -
+//     UPDATE SINGLE USER BY ID
+// - - - - - - - - - - - - - - - -
+
+router.put('/user:id', passport.authenticate('jwt', {session: false}), function (req, res, next) {
+    var token = getToken(req.headers);
+    if (token) {
+        user.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
+            if (err) return next(err);
+            res.json(post);
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'Unauthorized to edit user.'});
+    }
+});
+
+// - - - - - - - - - - - - - - - -
+//     DELETE USER
+// - - - - - - - - - - - - - - - -
+
+router.delete('/user:id', passport.authenticate('jwt', { session: false}), function(req, res, next) {
+    var token = getToken(req.headers);
+    if (token) {
+        user.findByIdAndRemove(req.params.id, req.body, function (err, post) {
+            if (err) return next(err);
+            res.json(post);
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'Unauthorized to delete.'});
+    }
+});
+
+/**
+ *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ *  FILM REVIEW FUNCTIONS
+ *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ **/
+
+// - - - - - - - - - - - - - - - -
+//     CREATE NEW REVIEW
+// - - - - - - - - - - - - - - - -
 router.post('/film', passport.authenticate('jwt', { session: false}), function(req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -143,33 +207,31 @@ router.post('/film', passport.authenticate('jwt', { session: false}), function(r
     }
 });
 
-// router.get('/film', passport.authenticate('jwt', { session: false}), function(req, res) {
+// - - - - - - - - - - - - - - - -
+//     GET ALL REVIEWS
+// - - - - - - - - - - - - - - - -
 router.get('/film', function(req, res) {
-    // var token = getToken(req.headers);
-    // if (token) {
         Film.find(function (err,films) {
             if (err) return next(err);
             res.json(films);
         });
-    // } else {
-    //     return res.status(403).send({success: false, msg: 'Unauthorized.'});
-    // }
 });
 
-/* GET SINGLE Film BY ID */
-router.get('/film:id', passport.authenticate('jwt', { session: false}), function(req, res, next) {
-    var token = getToken(req.headers);
-    if (token) {
+// - - - - - - - - - - - - - - - -
+//     GET SINGLE REVIEW BY ID
+// - - - - - - - - - - - - - - - -
+router.get('/film:id', function(req, res, next) {
+
         Film.findById(req.params.id, function (err, post) {
             if (err) return next(err);
             res.json(post);
         });
-    } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized.'});
-    }
+
 });
 
-/* findByIdAndUpdate*/
+// - - - - - - - - - - - - - - - -
+//     UPDATE REVIEW BY ID
+// - - - - - - - - - - - - - - - -
 router.put('/film:id', passport.authenticate('jwt', {session: false}), function (req, res, next) {
     var token = getToken(req.headers);
     if (token) {
@@ -183,7 +245,9 @@ router.put('/film:id', passport.authenticate('jwt', {session: false}), function 
 });
 
 
-/* DELETE Film */
+// - - - - - - - - - - - - - - - -
+//     DELETE REVIEW
+// - - - - - - - - - - - - - - - -
 router.delete('/film:id', passport.authenticate('jwt', { session: false}), function(req, res, next) {
     var token = getToken(req.headers);
     if (token) {
@@ -196,9 +260,16 @@ router.delete('/film:id', passport.authenticate('jwt', { session: false}), funct
     }
 });
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//     ANNOUNCEMENTS
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+/**
+ *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ *  ANNOUNCEMENTS FUNCTIONS
+ *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ **/
+// - - - - - - - - - - - - - - - -
+//     CREATE NEW ANNOUNCEMENT
+// - - - - - - - - - - - - - - - -
 router.post('/announcements', passport.authenticate('jwt', { session: false}), function(req, res) {
     var token = getToken(req.headers);
     if (token) {
@@ -207,7 +278,7 @@ router.post('/announcements', passport.authenticate('jwt', { session: false}), f
 
             title: req.body.title,
             author: req.body.author,
-            message: req.body.message,
+            message: req.body.message
         });
 
         newAnnouncements.save(function(err) {
@@ -221,20 +292,72 @@ router.post('/announcements', passport.authenticate('jwt', { session: false}), f
     }
 });
 
-router.get('/announcements', passport.authenticate('jwt', { session: false}), function(req, res) {
-    var token = getToken(req.headers);
-    if (token) {
+// - - - - - - - - - - - - - - - -
+//     GET ALL ANNOUNCEMENTS
+// - - - - - - - - - - - - - - - -
+
+router.get('/announcements', function(req, res) {
+
         Announcement.find(function (err,announments) {
             if (err) return next(err);
             res.json(announments);
         });
+
+});
+
+// - - - - - - - - - - - - - - - -
+//     GET SINGLE ANNOUNCEMENTS BY ID
+// - - - - - - - - - - - - - - - -
+router.get('/announcements:id', function(req, res, next) {
+
+    Announcement.findById(req.params.id, function (err, post) {
+        if (err) return next(err);
+        res.json(post);
+    });
+
+});
+
+// - - - - - - - - - - - - - - - -
+//     UPDATE ANNOUNCEMENTS BY ID
+// - - - - - - - - - - - - - - - -
+router.put('/announcements:id', passport.authenticate('jwt', {session: false}), function (req, res, next) {
+    var token = getToken(req.headers);
+    if (token) {
+        Announcement.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
+            if (err) return next(err);
+            res.json(post);
+        });
     } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized. To get Announcements'});
+        return res.status(403).send({success: false, msg: 'Unauthorized to update announcement.'});
     }
 });
 
+
+// - - - - - - - - - - - - - - - -
+//     DELETE ANNOUNCEMENTS
+// - - - - - - - - - - - - - - - -
+router.delete('/announcements:id', passport.authenticate('jwt', { session: false}), function(req, res, next) {
+    var token = getToken(req.headers);
+    if (token) {
+        Announcement.findByIdAndRemove(req.params.id, req.body, function (err, post) {
+            if (err) return next(err);
+            res.json(post);
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'Unauthorized to delete announcement.'});
+    }
+});
+
+
+/**
+ *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ *  COMMENT FUNCTIONS
+ *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ **/
+
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//    POST Comments
+//    CREATE COMMENT
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 router.post('/comment', passport.authenticate('jwt', { session: false}), function(req, res) {
     var token = getToken(req.headers);
@@ -243,7 +366,7 @@ router.post('/comment', passport.authenticate('jwt', { session: false}), functio
         var newComment = new Comment({
             postID: req.body.postID,
             author: req.body.author,
-            message: req.body.message,
+            message: req.body.message
         });
 
         newComment.save(function(err) {
@@ -257,26 +380,51 @@ router.post('/comment', passport.authenticate('jwt', { session: false}), functio
     }
 });
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-//    GET all Comments
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-router.get('/comment', passport.authenticate('jwt', { session: false}), function(req, res) {
-    var token = getToken(req.headers);
-    if (token) {
-        Comment.find(function (err,comment) {
-            if (err) return next(err);
-            res.json(comment);
-        });
-    } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized. To get Comments'});
-    }
-});
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //    GET specific Comments based on postID
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
+router.get('/comment:postID', function(req, res, next) {
+
+    Comment.find({ postID: req.params.postID }, function (err, post) {
+        if (err) return next(err);
+        res.json(post);
+    });
+
+});
+
+// - - - - - - - - - - - - - - - -
+//     UPDATE COMMENT BY ID
+// - - - - - - - - - - - - - - - -
+router.put('/comment:id', passport.authenticate('jwt', {session: false}), function (req, res, next) {
+    var token = getToken(req.headers);
+    if (token) {
+        Comment.findByIdAndUpdate(req.params.id, req.body, function (err, post) {
+            if (err) return next(err);
+            res.json(post);
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'Unauthorized to update announcement.'});
+    }
+});
+
+
+// - - - - - - - - - - - - - - - -
+//     DELETE COMMENT
+// - - - - - - - - - - - - - - - -
+router.delete('/comment:id', passport.authenticate('jwt', { session: false}), function(req, res, next) {
+    var token = getToken(req.headers);
+    if (token) {
+        Announcement.findByIdAndRemove(req.params.id, req.body, function (err, post) {
+            if (err) return next(err);
+            res.json(post);
+        });
+    } else {
+        return res.status(403).send({success: false, msg: 'Unauthorized to delete announcement.'});
+    }
+});
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
