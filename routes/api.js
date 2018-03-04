@@ -63,7 +63,7 @@ router.put('/user:id', passport.authenticate('jwt', {session: false}), function 
             res.json(post);
         });
     } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized.'});
+        return res.status(403).send({success: false, msg: 'Unauthorized to update.'});
     }
 });
 
@@ -203,7 +203,7 @@ router.post('/film', passport.authenticate('jwt', { session: false}), function(r
             res.json({success: true, msg: 'Successful created new film.'});
         });
     } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized.'});
+        return res.status(403).send({success: false, msg: 'Unauthorized to create film.'});
     }
 });
 
@@ -240,7 +240,7 @@ router.put('/film:id', passport.authenticate('jwt', {session: false}), function 
             res.json(post);
         });
     } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized.'});
+        return res.status(403).send({success: false, msg: 'Unauthorized to update film.'});
     }
 });
 
@@ -256,7 +256,7 @@ router.delete('/film:id', passport.authenticate('jwt', { session: false}), funct
             res.json(post);
         });
     } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized.'});
+        return res.status(403).send({success: false, msg: 'Unauthorized Film.'});
     }
 });
 
@@ -417,12 +417,12 @@ router.put('/comment:id', passport.authenticate('jwt', {session: false}), functi
 router.delete('/comment:id', passport.authenticate('jwt', { session: false}), function(req, res, next) {
     var token = getToken(req.headers);
     if (token) {
-        Announcement.findByIdAndRemove(req.params.id, req.body, function (err, post) {
+        Comment.findByIdAndRemove(req.params.id, req.body, function (err, post) {
             if (err) return next(err);
             res.json(post);
         });
     } else {
-        return res.status(403).send({success: false, msg: 'Unauthorized to delete announcement.'});
+        return res.status(403).send({success: false, msg: 'Unauthorized to delete comment.'});
     }
 });
 

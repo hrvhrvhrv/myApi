@@ -32,9 +32,9 @@ var FilmSchema = new Schema({
     img: {
         data: Buffer,
         contentType: String
-    }
+    },
 }, {
-    timestamp: true
+    timestamp: { createdAt: 'created_at' }
 });
 
 module.exports = mongoose.model('Film', FilmSchema);
